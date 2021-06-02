@@ -1,7 +1,7 @@
 <template>
     <div id="app11">
         <div id="nav">
-            <g-select />
+            <g-select v-model="ids" />
             <about />
             <!-- <img :src="img_bg" alt /> -->
             <!-- <FunctionalButton name="click me"></FunctionalButton> -->
@@ -16,12 +16,27 @@ export default {
     components: {
         about,
         gSelect,
-        // FunctionalButton
+        // FunctionalButton,
     },
     data() {
         return {
             // default: require(`@/assets/logo.png`),
             img_bg: require('@/assets/bg.jpg'),
+            selectData: [
+                {
+                    id: 1,
+                    text: '手机号',
+                },
+                {
+                    id: 2,
+                    text: '昵称',
+                },
+                {
+                    id: 3,
+                    text: '邮箱',
+                },
+            ],
+            ids: '1,3',
         };
     },
 };

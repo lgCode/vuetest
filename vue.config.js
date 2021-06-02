@@ -17,7 +17,7 @@ const zipPath = `./dist/${pkgName}-${pkgDate}-01.zip`;
 const cdn = {
   css: ["https://unpkg.com/element-ui@2.15.1/lib/theme-chalk/index.css"],
   js: [
-    "https://unpkg.com/vue@2.6.11/dist/vue.min.js",
+    "https://unpkg.com/vue@2.6.11/dist/vue.js",
     "//unpkg.com/vue-router@3.0.6/dist/vue-router.min.js",
     "//unpkg.com/vuex@3.1.1/dist/vuex.min.js",
     "//unpkg.com/axios@0.19.0/dist/axios.min.js",
@@ -29,6 +29,7 @@ const path = require("path");
 const resolve = dir => {
   return path.join(__dirname, dir); //path.join()  拼接路径
 };
+console.log("env:", process.env.NODE_ENV);
 module.exports = {
   publicPath: process.env.NODE_ENV === "production" ? "./" : "/",
   // assetsDir: "static",
