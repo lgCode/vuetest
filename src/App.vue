@@ -1,7 +1,7 @@
 <template>
     <div id="app11">
         <div id="nav">
-            <g-select v-model="ids" />
+            <g-select :select-data="selectData" multiple v-model="ids" />
             <about />
             <!-- <img :src="img_bg" alt /> -->
             <!-- <FunctionalButton name="click me"></FunctionalButton> -->

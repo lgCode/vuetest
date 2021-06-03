@@ -3,18 +3,15 @@
         <div :class="'g-select-open'" class="g-select-input-wrap">
             <input
                 :placeholder="placeholder"
-                :value="checkedText"
                 class="g-select-input g-text-ellipsis"
                 disabled
                 type="text"
+                v-model="checkedText"
             />
         </div>
         <div class="g-select-list-wrap">
             <ul class="g-select-list">
-                <li>1</li>
-                <li>1</li>
-                <li>1</li>
-                <li>1</li>
+                <li :key="item.text" @click="onSelect(item.id)" v-for="item in selectData">{{item.text}}</li>
             </ul>
         </div>
     </section>
@@ -46,10 +43,11 @@ export default {
             type: Number,
             default: 5,
         },
+        //v-model映射，选择的结果值
         ids: {
-            type: [String, Array],
+            type: [Number, String, Array],
             default() {
-                return [];
+                return this.multiple ? [] : null;
             },
         },
     },
@@ -59,31 +57,64 @@ export default {
     },
     data() {
         return {
-            //点击选择的下拉节点
-            selectedNode: {},
+            //选中的节点
+            checkedArray: [],
         };
     },
-    computed: {
-        //v-mode映射字段，保存当前选中的id
-        checkedKeySet() {
-            let _ids = this.ids;
-            if (_ids == '' || _ids == null || _ids == undefined) {
-                return new Set([]);
-            } else if (typeof _ids === 'string') {
-                return new Set(_ids.split(','));
-            } else if (Array.isArray(_ids)) {
-                return new Set(_ids);
-            } else {
-                return new Set([_ids]);
-            }
+    watch: {
+        ids: {
+            handler(_ids) {
+                //多选
+                if (this.multiple) {
+                    if (_ids == '' || _ids == null || _ids == undefined) {
+                        this.checkedArray = [];
+                    } else if (typeof _ids === 'string') {
+                        this.checkedArray = _ids.split(',').map(Number);
+                    } else if (Array.isArray(_ids)) {
+                        this.checkedArray = _ids;
+                    } else {
+                        this.checkedArray = [_ids];
+                    }
+                } else {
+                }
+            },
+            immediate: true,
         },
+    },
+    computed: {
         //输入框文字
         checkedText() {
-            return '';
+            return (
+                this.selectData
+                    .filter((item) => this.checkedArray.includes(item.id))
+                    .map((item) => item.text)
+                    .join('/') || ''
+            );
         },
     },
     mounted() {
-        console.log(this.checkedKeySet);
+        // console.log('checkedArray:', this.checkedArray);
+    },
+    methods: {
+        //选择节点
+        onSelect(key) {
+            let _checkedArray = this.checkedArray;
+            let _index = _checkedArray.indexOf(key);
+            //多选
+            if (this.multiple) {
+                if (_index >= 0) {
+                    this.checkedArray.splice(_index, 1);
+                } else {
+                    this.checkedArray.push(key);
+                }
+            } else {
+                //单选
+            }
+        },
+        //返回选中的数据
+        returnData() {
+            this.$emit('change');
+        },
     },
 };
 </script>
