@@ -2,6 +2,7 @@
     <div id="app11">
         <div id="nav">
             <g-select :select-data="selectData" multiple v-model="ids" />
+            {{ids}}
             <about />
             <!-- <img :src="img_bg" alt /> -->
             <!-- <FunctionalButton name="click me"></FunctionalButton> -->
@@ -36,8 +37,13 @@ export default {
                     text: '邮箱',
                 },
             ],
-            ids: '1,3',
+            ids: 1,
         };
+    },
+    watch: {
+        ids(nVal) {
+            console.log('newVal:', nVal);
+        },
     },
 };
 </script>

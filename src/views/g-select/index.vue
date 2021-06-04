@@ -58,30 +58,31 @@ export default {
     data() {
         return {
             //选中的节点
-            checkedArray: [],
+            // checkedArray: [],
         };
     },
-    watch: {
-        ids: {
-            handler(_ids) {
+    computed: {
+        checkedArray: {
+            get() {
+                let _ids = this.ids;
                 //多选
                 if (this.multiple) {
-                    if (_ids == '' || _ids == null || _ids == undefined) {
-                        this.checkedArray = [];
+                    if (Array.isArray(_ids)) {
+                        return _ids;
                     } else if (typeof _ids === 'string') {
-                        this.checkedArray = _ids.split(',').map(Number);
-                    } else if (Array.isArray(_ids)) {
-                        this.checkedArray = _ids;
+                        return _ids.split(',').map(Number);
+                    } else if (typeof _ids === 'number') {
+                        return [_ids];
                     } else {
-                        this.checkedArray = [_ids];
+                        return [];
                     }
                 } else {
+                    //单选
+                    return [];
                 }
             },
-            immediate: true,
+            set(val) {},
         },
-    },
-    computed: {
         //输入框文字
         checkedText() {
             return (
@@ -110,10 +111,22 @@ export default {
             } else {
                 //单选
             }
+            console.log('this.checkedArray:', this.checkedArray);
+            this.returnChange();
         },
         //返回选中的数据
-        returnData() {
-            this.$emit('change');
+        returnChange() {
+            console.log('ids:', this.ids);
+            let result = null;
+            let _ids = this.ids;
+            if (_ids == null || _ids == undefined || Array.isArray(_ids)) {
+                result = Object.assign([], this.checkedArray);
+            } else if (typeof _ids === 'string') {
+                result = this.checkedArray.join();
+            } else if (typeof _ids === 'number') {
+                result = Object.assign([], this.checkedArray);
+            }
+            this.$emit('change', result);
         },
     },
 };
