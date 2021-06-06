@@ -1,5 +1,5 @@
 <template>
-    <section class="g-select-wrap">
+    <section :class="{'active':isShowList}" @click="toggleList" class="g-select-wrap">
         <div :class="'g-select-open'" class="g-select-input-wrap">
             <input
                 :placeholder="placeholder"
@@ -11,7 +11,10 @@
         </div>
         <div class="g-select-list-wrap">
             <ul class="g-select-list">
-                <li :key="item.text" @click="onSelect(item.id)" v-for="item in selectData">{{item.text}}</li>
+                <li :key="item[textKey]" @click="onSelect(item[originKey])" v-for="item in selectData">
+                    <img :src="iconSrc" class="icon-checked" v-show="hasChecked(item[originKey])" />
+                    {{item[textKey]}}
+                </li>
             </ul>
         </div>
     </section>
@@ -43,6 +46,16 @@ export default {
             type: Number,
             default: 5,
         },
+        //主键值key，默认id
+        originKey: {
+            type: String,
+            default: 'id',
+        },
+        //文字显示key值，默认为text
+        textKey: {
+            type: String,
+            default: 'text',
+        },
         //v-model映射，选择的结果值
         ids: {
             type: [Number, String, Array],
@@ -58,65 +71,97 @@ export default {
     data() {
         return {
             //选中的节点
-            // checkedArray: [],
+            iconSrc: require('Assets/icon/icon-checked.png'),
+            //是否显示list
+            isShowList: false,
         };
     },
     computed: {
-        checkedArray: {
-            get() {
-                let _ids = this.ids;
-                //多选
-                if (this.multiple) {
-                    if (Array.isArray(_ids)) {
-                        return _ids;
-                    } else if (typeof _ids === 'string') {
-                        return _ids.split(',').map(Number);
-                    } else if (typeof _ids === 'number') {
-                        return [_ids];
-                    } else {
-                        return [];
-                    }
-                } else {
-                    //单选
+        //选中的节点数组
+        checkedArray() {
+            let _ids = this.ids;
+            //多选
+            if (this.multiple) {
+                if (_ids.trim().length == 0 || _ids == null || _ids == undefined) {
                     return [];
+                } else if (Array.isArray(_ids)) {
+                    return _ids;
+                } else if (typeof _ids === 'string') {
+                    return _ids.split(',').map(Number);
+                } else if (typeof _ids === 'number') {
+                    return [_ids];
                 }
-            },
-            set(val) {},
+            } else {
+                //单选
+                if (Array.isArray(_ids)) {
+                    return [_ids[0]];
+                } else if (typeof _ids === 'string') {
+                    return [_ids.split(',').map(Number)[0]];
+                } else if (typeof _ids === 'number') {
+                    return [_ids];
+                }
+            }
+
+            return [];
         },
         //输入框文字
         checkedText() {
             return (
                 this.selectData
-                    .filter((item) => this.checkedArray.includes(item.id))
-                    .map((item) => item.text)
+                    .filter((item) => this.checkedArray.includes(item[this.originKey]))
+                    .map((item) => item[this.textKey])
                     .join('/') || ''
             );
         },
+        //是否选中
+        hasChecked() {
+            return function (key) {
+                return this.checkedArray.includes(key) ? true : false;
+            };
+        },
     },
     mounted() {
-        // console.log('checkedArray:', this.checkedArray);
+        this.init();
     },
     methods: {
+        init() {
+            document.addEventListener('click', this.onBlur, false);
+            this.$once('hook:beforeDestory', function () {
+                document.removeEventListener('click', this.onBlur, false);
+            });
+        },
+        //点击其他元素时，隐藏list
+        onBlur(e) {
+            if (!this.$el.contains(e.target)) {
+                this.isShowList = false;
+            }
+        },
+        //单选：切换显示list，多选：显示list
+        toggleList(e) {
+            console.log('e:', e, e.target);
+            if (this.$el.contains(e.target)) {
+                this.isShowList = this.multiple ? true : !this.isShowList;
+            }
+        },
         //选择节点
         onSelect(key) {
+            // console.log('key:', key);
             let _checkedArray = this.checkedArray;
-            let _index = _checkedArray.indexOf(key);
-            //多选
-            if (this.multiple) {
-                if (_index >= 0) {
-                    this.checkedArray.splice(_index, 1);
-                } else {
-                    this.checkedArray.push(key);
-                }
+            let _index = _checkedArray.indexOf(key); //是否在选中的数组中
+
+            if (_index >= 0) {
+                this.checkedArray.splice(_index, 1);
             } else {
-                //单选
+                //多选，单选区分
+                this.multiple ? this.checkedArray.push(key) : this.checkedArray.splice(_index, 1, key);
             }
-            console.log('this.checkedArray:', this.checkedArray);
-            this.returnChange();
+
+            // console.log('this.checkedArray:', this.checkedArray);
+            this.returnChange(); //返回结果
         },
         //返回选中的数据
         returnChange() {
-            console.log('ids:', this.ids);
+            // console.log('ids:', this.ids);
             let result = null;
             let _ids = this.ids;
             if (_ids == null || _ids == undefined || Array.isArray(_ids)) {
@@ -134,14 +179,18 @@ export default {
 
 <style lang="less" scoped>
 .g-select-wrap {
+    box-sizing: border-box;
     display: inline-block;
     width: 300px;
     height: auto;
-    min-height: 100px;
-    padding: 20px;
     color: rgba(0, 0, 0, 0.65);
     font-size: 14px;
     font-variant: tabular-nums;
+    &.active {
+        .g-select-list-wrap {
+            display: block;
+        }
+    }
     .g-select-input-wrap {
         box-sizing: border-box;
         position: relative;
@@ -186,6 +235,7 @@ export default {
         }
     }
     .g-select-list-wrap {
+        display: none;
         width: 100%;
         height: auto;
         min-height: 20px;
@@ -195,11 +245,22 @@ export default {
             width: 100%;
             height: auto;
             & > li {
+                position: relative;
+                box-sizing: border-box;
+                padding-left: 30px;
                 height: 20px;
                 line-height: 20px;
                 cursor: pointer;
                 &:hover {
                     background: red;
+                }
+                .icon-checked {
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 15px;
+                    height: 15px;
                 }
             }
         }
