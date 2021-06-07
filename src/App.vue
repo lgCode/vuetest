@@ -1,7 +1,16 @@
 <template>
     <div id="app11">
         <div id="nav">
-            <g-select :select-data="selectData" multiple textKey="label" v-model="ids" />
+            <g-select
+                :onOverLimitMaxPrompt="onOverLimitMaxPrompt"
+                :onOverLimitMinPrompt="onOverLimitMinPrompt"
+                :select-data="selectData"
+                maxCheckedNum="5"
+                minCheckedNum="1"
+                multiple
+                textKey="label"
+                v-model="ids"
+            />
             {{ids}}
             <about />
             <!-- <img :src="img_bg" alt /> -->
@@ -26,19 +35,45 @@ export default {
             selectData: [
                 {
                     id: 1,
-                    label: '手机号手机号手机号手机号手机号',
+                    label: '手机号',
                 },
                 {
                     id: 2,
-                    label: '昵称昵称昵称昵称昵称昵称昵称',
+                    label: '昵称',
                 },
                 {
                     id: 3,
-                    label: '邮箱邮箱邮箱邮箱邮箱邮箱邮箱邮箱',
+                    label: '邮箱',
+                },
+                {
+                    id: 4,
+                    label: '姓名',
+                },
+                {
+                    id: 5,
+                    label: '扩展字段1',
+                },
+                {
+                    id: 6,
+                    label: '扩展字段2',
                 },
             ],
             ids: '1',
         };
+    },
+    computed: {
+        getCheckedIds() {
+            let result = '';
+            return result;
+        },
+    },
+    methods: {
+        onOverLimitMaxPrompt() {
+            alert('最多可选择5个');
+        },
+        onOverLimitMinPrompt() {
+            alert('至少选择1个');
+        },
     },
 };
 </script>

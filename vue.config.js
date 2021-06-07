@@ -57,16 +57,16 @@ module.exports = {
   },
   chainWebpack: config => {
     //HtmlWebpackPlugin插件参数
-    config.plugin("html").tap(args => {
+   /*  config.plugin("html").tap(args => {
       // console.log("args:", args[0]);
       args[0].title = "vuetest_project";
       args[0].isDevelop = process.env.NODE_ENV === "development" ? true : false;
       args[0].cdn = cdn;
       return args;
-    });
+    }); */
 
     //配置路径别名
-    config.resolve.alias
+     config.resolve.alias
       .set("@", resolve("src"))
       .set("Views", resolve("src/views"))
       .set("Assets", resolve("src/assets"))
@@ -81,9 +81,9 @@ module.exports = {
       .options({
         bypassOnDebug: true
       })
-      .end();
+      .end(); 
     // disable: false //此处为ture的时候不会启用压缩处理,目的是为了开发模式下调试速度更快,网上错误示例直接写为disable:true,如果不去查看文档肯定是要被坑的
-    if (process.env.NODE_ENV === "production") {
+   /*  if (process.env.NODE_ENV === "production") {
       config.plugin("zip").use(require("filemanager-webpack-plugin"), [
         {
           onEnd: {
@@ -97,7 +97,7 @@ module.exports = {
           }
         }
       ]);
-    }
+    } */
     // 开启js、css压缩
     /* if (process.env.NODE_ENV === "production") {
       config.plugin("compressionPlugin").use(

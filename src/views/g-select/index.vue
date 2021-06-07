@@ -1,6 +1,6 @@
 <template>
-    <section :class="{'active':isShowList}" @click="toggleList" class="g-select-wrap">
-        <div :class="'g-select-open'" class="g-select-input-wrap">
+    <section :class="{'active':isShowList}" class="g-select-wrap">
+        <div @click.stop="toggleList" class="g-select-input-wrap">
             <input
                 :placeholder="placeholder"
                 class="g-select-input g-text-ellipsis"
@@ -41,10 +41,25 @@ export default {
             type: Boolean,
             default: false,
         },
+        //最少选择个数
+        minCheckedNum: {
+            type: [Number, String],
+            default: null,
+        },
         //最多可选个数
         maxCheckedNum: {
-            type: Number,
-            default: 5,
+            type: [Number, String],
+            default: null,
+        },
+        //超过最多个数提示
+        onOverLimitMaxPrompt: {
+            type: Function,
+            default: null,
+        },
+        //超过最多个数提示
+        onOverLimitMinPrompt: {
+            type: Function,
+            default: null,
         },
         //主键值key，默认id
         originKey: {
@@ -113,7 +128,7 @@ export default {
                     .join('/') || ''
             );
         },
-        //是否选中
+        //是否选中,控制勾选图标
         hasChecked() {
             return function (key) {
                 return this.checkedArray.includes(key) ? true : false;
@@ -138,22 +153,34 @@ export default {
         },
         //单选：切换显示list，多选：显示list
         toggleList(e) {
-            console.log('e:', e, e.target);
-            if (this.$el.contains(e.target)) {
-                this.isShowList = this.multiple ? true : !this.isShowList;
-            }
+            // console.log('e:', e, e.target);
+            this.isShowList = !this.isShowList;
         },
         //选择节点
         onSelect(key) {
             // console.log('key:', key);
             let _checkedArray = this.checkedArray;
             let _index = _checkedArray.indexOf(key); //是否在选中的数组中
+            let _maxCheckedNum = this.maxCheckedNum; //最多选择个数
+            let _minCheckedNum = this.minCheckedNum; //最多选择个数
+
+            // console.log('onOverLimitMaxPrompt:', this.onOverLimitMaxPrompt)
+            //最多个数
+            if (_maxCheckedNum && _checkedArray.length == _maxCheckedNum && _index < 0) {
+                this.onOverLimitMaxPrompt ? this.onOverLimitMaxPrompt() : this.$emit('validate', 'maxCheckedNum');
+                return;
+            }
+            //最少个数
+            if (_minCheckedNum && _checkedArray.length == _minCheckedNum && _index >= 0) {
+                this.onOverLimitMinPrompt ? this.onOverLimitMinPrompt() : this.$emit('validate', 'minCheckedNum');
+                return;
+            }
 
             if (_index >= 0) {
-                this.checkedArray.splice(_index, 1);
+                _checkedArray.splice(_index, 1);
             } else {
                 //多选，单选区分
-                this.multiple ? this.checkedArray.push(key) : this.checkedArray.splice(_index, 1, key);
+                this.multiple ? _checkedArray.push(key) : _checkedArray.splice(_index, 1, key);
             }
 
             // console.log('this.checkedArray:', this.checkedArray);
@@ -178,10 +205,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@import '~Assets/css/mixin.less';
 .g-select-wrap {
     box-sizing: border-box;
     display: inline-block;
-    width: 300px;
+    width: 200px;
     height: auto;
     color: rgba(0, 0, 0, 0.65);
     font-size: 14px;
@@ -214,15 +242,6 @@ export default {
             outline: 0;
             box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
         }
-        &.g-select-open::before {
-            content: '111';
-            display: inline-block;
-            position: absolute;
-            right: 8px;
-            top: 0;
-            width: 20px;
-            height: 20px;
-        }
         .g-select-input {
             box-sizing: border-box;
             width: 100%;
@@ -239,11 +258,12 @@ export default {
         width: 100%;
         height: auto;
         min-height: 20px;
-        background: #ffff0014;
         margin-top: 10px;
         .g-select-list {
             width: 100%;
             height: auto;
+            max-height: 100px;
+            overflow-y: scroll;
             & > li {
                 position: relative;
                 box-sizing: border-box;
@@ -252,7 +272,7 @@ export default {
                 line-height: 20px;
                 cursor: pointer;
                 &:hover {
-                    background: red;
+                    background: #9cbfea;
                 }
                 .icon-checked {
                     position: absolute;
