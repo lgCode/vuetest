@@ -4,7 +4,6 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 // import api from "./request/api"
-
 // Vue.prototype.api = api;
 
 Vue.config.productionTip = false;

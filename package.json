@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve --open --port 9000",
     "author": "vue-cli-service serve --mode author",
     "build": "vue-cli-service build ",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build:gSelect":"vue-cli-service build --target lib --name gSelect src/views/g-select/index.vue"
     
   },
   "dependencies": {
