@@ -5,9 +5,8 @@ import router from "./router";
 import store from "./store";
 // import api from "./request/api"
 // Vue.prototype.api = api;
-import gSelect from "../packages/index";
-
-Vue.use(gSelect);
+import LGDesign from "Packages/index"; //自定义组件
+Vue.use(LGDesign);
 
 Vue.config.productionTip = false;
 new Vue({

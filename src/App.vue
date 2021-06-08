@@ -9,8 +9,9 @@
                 minCheckedNum="1"
                 multiple
                 textKey="label"
-                v-model="ids"
+                v-model="getCheckedIds"
             />
+            {{getCheckedIds}}
             {{ids}}
             <about />
             <!-- <img :src="img_bg" alt /> -->
@@ -57,15 +58,40 @@ export default {
                     id: 6,
                     label: '扩展字段2',
                 },
-            ],
-            ids: '1',
+            ], //所有数据
+            checkedData: [], //选中的
+            ids: '', //传递的id值
         };
     },
     computed: {
-        getCheckedIds() {
-            let result = '';
-            return result;
+        getCheckedIds: {
+            get() {
+                return this.checkedData.length > 0 ? this.checkedData.map((item) => item.id).join(',') : '';
+            },
+            set(val) {
+                let _ids = val.split(',').map(Number);
+                this.ids = val;
+                this.checkedData = this.selectData.filter((item) => _ids.includes(item.id));
+            },
         },
+    },
+    mounted() {
+        setTimeout(() => {
+            this.checkedData = [
+                {
+                    id: 1,
+                    label: '手机号',
+                },
+                {
+                    id: 2,
+                    label: '昵称',
+                },
+                {
+                    id: 3,
+                    label: '邮箱',
+                },
+            ];
+        }, 1000);
     },
     methods: {
         onOverLimitMaxPrompt() {

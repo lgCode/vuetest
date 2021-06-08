@@ -7,8 +7,8 @@
     "author": "vue-cli-service serve --mode author",
     "build": "vue-cli-service build ",
     "lint": "vue-cli-service lint",
-    "build:gSelect":"vue-cli-service build --target lib --name gSelect src/views/g-select/index.vue"
-    
+    "lib": "vue-cli-service build --target lib --name gPlugins --dest lib packages/index.js",
+    "lib:gSelect": "vue-cli-service build --target lib --name gSelect --dest lib packages/gSelect/index.js"
   },
   "dependencies": {
     "core-js": "^3.6.4",

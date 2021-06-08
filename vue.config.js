@@ -45,7 +45,7 @@ module.exports = {
   },
   configureWebpack: {
     // 打包忽略文件
-    externals: {
+    /*  externals: {
       vue: "Vue",
       // "element-ui": "ELEMENT",
       "vue-router": "VueRouter",
@@ -53,27 +53,38 @@ module.exports = {
       axios: "axios"
       // moment: "moment",
       // xlsx: "XLSX",
-    }
+    } */
   },
   chainWebpack: config => {
     //HtmlWebpackPlugin插件参数
-    config.plugin("html").tap(args => {
+    /*  config.plugin("html").tap(args => {
       // console.log("args:", args[0]);
-      args[0].title = "vuetest_project";
-      args[0].isDevelop = process.env.NODE_ENV === "development" ? true : false;
-      args[0].cdn = cdn;
+      // args[0].title = "vuetest_project";
+      // args[0].isDevelop = process.env.NODE_ENV === "development" ? true : false;
+      // args[0].cdn = cdn;
       return args;
-    });
+    }); */
+    config.module
+      .rule("js")
+      .include.add(__dirname + "packages") // 注意这里需要绝对路径，所有要拼接__dirname
+      .end()
+      .use("babel")
+      .loader("babel-loader")
+      .tap(options => {
+        // 修改它的选项...
+        return options;
+      });
 
     //配置路径别名
     config.resolve.alias
       .set("@", resolve("src"))
       .set("Views", resolve("src/views"))
       .set("Assets", resolve("src/assets"))
+      .set("Packages", resolve("packages"))
       .set("Components", resolve("src/components"));
 
     // 开启图片压缩
-    config.module
+    /*  config.module
       .rule("images")
       .test(/\.(png|jpe?g|gif|svg)(\?.*)?$/)
       .use("image-webpack-loader")
@@ -81,7 +92,7 @@ module.exports = {
       .options({
         bypassOnDebug: true
       })
-      .end();
+      .end(); */
     // disable: false //此处为ture的时候不会启用压缩处理,目的是为了开发模式下调试速度更快,网上错误示例直接写为disable:true,如果不去查看文档肯定是要被坑的
     /*  if (process.env.NODE_ENV === "production") {
       config.plugin("zip").use(require("filemanager-webpack-plugin"), [

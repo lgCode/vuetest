@@ -131,7 +131,7 @@ export default {
         //是否选中,控制勾选图标
         hasChecked() {
             return function (key) {
-                return this.checkedArray.includes(key) ? true : false;
+                return this.checkedArray.includes(key);
             };
         },
     },
