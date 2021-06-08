@@ -5,6 +5,9 @@ import router from "./router";
 import store from "./store";
 // import api from "./request/api"
 // Vue.prototype.api = api;
+import gSelect from "../packages/index";
+
+Vue.use(gSelect);
 
 Vue.config.productionTip = false;
 new Vue({

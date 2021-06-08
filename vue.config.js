@@ -57,13 +57,13 @@ module.exports = {
   },
   chainWebpack: config => {
     //HtmlWebpackPlugin插件参数
-    /*  config.plugin("html").tap(args => {
+    config.plugin("html").tap(args => {
       // console.log("args:", args[0]);
       args[0].title = "vuetest_project";
       args[0].isDevelop = process.env.NODE_ENV === "development" ? true : false;
       args[0].cdn = cdn;
       return args;
-    }); */
+    });
 
     //配置路径别名
     config.resolve.alias

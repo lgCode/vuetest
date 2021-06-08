@@ -21,11 +21,11 @@
 <script>
 import FunctionalButton from '@/components/ComFunctional.vue';
 import about from './views/About';
-import gSelect from 'Views/g-select';
+// import gSelect from 'Views/g-select';
 export default {
     components: {
         about,
-        gSelect,
+        // gSelect,
         // FunctionalButton,
     },
     data() {
