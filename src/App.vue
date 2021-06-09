@@ -5,14 +5,16 @@
                 :onOverLimitMaxPrompt="onOverLimitMaxPrompt"
                 :onOverLimitMinPrompt="onOverLimitMinPrompt"
                 :select-data="selectData"
+                :valueTypeObject="checkedData"
                 maxCheckedNum="5"
                 minCheckedNum="1"
                 multiple
+                setCheckedTop
                 textKey="label"
                 v-model="getCheckedIds"
             />
             {{getCheckedIds}}
-            {{ids}}
+            <!-- {{ids}} -->
             <about />
             <!-- <img :src="img_bg" alt /> -->
             <!-- <FunctionalButton name="click me"></FunctionalButton> -->
@@ -61,6 +63,7 @@ export default {
             ], //所有数据
             checkedData: [], //选中的
             ids: '', //传递的id值
+            rersult: [],
         };
     },
     computed: {
@@ -83,17 +86,18 @@ export default {
                     label: '手机号',
                 },
                 {
-                    id: 2,
-                    label: '昵称',
-                },
-                {
                     id: 3,
                     label: '邮箱',
                 },
             ];
+            this.sort();
         }, 1000);
     },
     methods: {
+        sort() {
+            // this.result = result;
+            // console.log(result);
+        },
         onOverLimitMaxPrompt() {
             alert('最多可选择5个');
         },

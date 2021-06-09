@@ -11,7 +11,7 @@
         </div>
         <div class="g-select-list-wrap">
             <ul class="g-select-list">
-                <li :key="item[textKey]" @click="onSelect(item[originKey])" v-for="item in selectData">
+                <li :key="item[textKey]" @click="onSelect(item[originKey])" v-for="item in listRenderData">
                     <img :src="iconSrc" class="icon-checked" v-show="hasChecked(item[originKey])" />
                     {{item[textKey]}}
                 </li>
@@ -78,6 +78,11 @@ export default {
                 return this.multiple ? [] : null;
             },
         },
+        //是否置顶选中值
+        setCheckedTop: {
+            type: Boolean,
+            default: false,
+        },
     },
     model: {
         prop: 'ids',
@@ -116,7 +121,6 @@ export default {
                     return [_ids];
                 }
             }
-
             return [];
         },
         //输入框文字
@@ -133,6 +137,21 @@ export default {
             return function (key) {
                 return this.checkedArray.includes(key);
             };
+        },
+        //列表结果数据
+        listRenderData() {
+            if (this.setCheckedTop && this.$attrs.valueTypeObject && this.$attrs.valueTypeObject.length > 0) {
+                let result = this.$attrs.valueTypeObject.slice();
+                this.selectData.forEach((item, index, arr) => {
+                    if (this.checkedArray.includes(item.id)) {
+                        arr.splice(index, 1);
+                    }
+                });
+                result.push(...this.selectData);
+                return result;
+            } else {
+                return this.selectData;
+            }
         },
     },
     mounted() {
@@ -183,7 +202,7 @@ export default {
                 this.multiple ? _checkedArray.push(key) : _checkedArray.splice(_index, 1, key);
             }
 
-            // console.log('this.checkedArray:', this.checkedArray);
+            console.log('this.checkedArray:', this.checkedArray);
             this.returnChange(); //返回结果
         },
         //返回选中的数据
@@ -262,8 +281,8 @@ export default {
         .g-select-list {
             width: 100%;
             height: auto;
-            max-height: 100px;
-            overflow-y: scroll;
+            max-height: 200px;
+            overflow-y: auto;
             & > li {
                 position: relative;
                 box-sizing: border-box;
