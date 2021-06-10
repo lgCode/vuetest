@@ -1,17 +1,19 @@
 <template>
     <section :class="{'active':isShowList}" class="g-select-wrap">
         <div @click.stop="toggleList" class="g-select-input-wrap">
+            <div :class="{'g-select-focused':selectFocus}" class="g-select-selection-selected-value">{{checkedText}}111</div>
             <input
-                :placeholder="placeholder"
+                :disabled="!canSearch"
+                :placeholder="placeholderText"
                 class="g-select-input g-text-ellipsis"
-                disabled
+                ref="searchInput"
                 type="text"
-                v-model="checkedText"
             />
+            <!-- v-model.trim="checkedText" -->
         </div>
         <div class="g-select-list-wrap">
             <ul class="g-select-list">
-                <li :key="item[textKey]" @click="onSelect(item[originKey])" v-for="item in listRenderData">
+                <li :key="index" @click="onSelect(item[originKey])" v-for="(item,index) in renderListData">
                     <img :src="iconSrc" class="icon-checked" v-show="hasChecked(item[originKey])" />
                     {{item[textKey]}}
                 </li>
@@ -31,8 +33,8 @@ export default {
                 return [];
             },
         },
-        //输入框placeholder
-        placeholder: {
+        //输入框placeholderDefault
+        placeholderDefault: {
             type: String,
             default: '请选择',
         },
@@ -78,8 +80,8 @@ export default {
                 return this.multiple ? [] : null;
             },
         },
-        //是否置顶选中值
-        setCheckedTop: {
+        //带搜索
+        canSearch: {
             type: Boolean,
             default: false,
         },
@@ -90,11 +92,20 @@ export default {
     },
     data() {
         return {
-            //选中的节点
-            iconSrc: require('Assets/icon/icon-checked.png'),
-            //是否显示list
-            isShowList: false,
+            iconSrc: require('Assets/icon/icon-checked.png'), //选中的节点图标
+            isShowList: false, //是否显示list
+            placeholderInput: '',
+            selectFocus: false, //文字区域是否获取焦点
+            
         };
+    },
+    watch: {
+        selectFocus(nVal) {
+            if (nVal) {
+                this.$refs.searchInput.focus();
+            } else {
+            }
+        },
     },
     computed: {
         //选中的节点数组
@@ -124,13 +135,23 @@ export default {
             return [];
         },
         //输入框文字
-        checkedText() {
-            return (
-                this.selectData
-                    .filter((item) => this.checkedArray.includes(item[this.originKey]))
-                    .map((item) => item[this.textKey])
-                    .join('/') || ''
-            );
+        checkedText: {
+            get() {
+                return (
+                    this.selectData
+                        .filter((item) => this.checkedArray.includes(item[this.originKey]))
+                        .map((item) => item[this.textKey])
+                        .join('/') || ''
+                );
+            },
+            set(val) {
+                console.log('val:', val);
+                /*this.checkedText = val;
+                 let _val = val.toLowerCase();
+                this.selectData = this.selectData.filter((item) => {
+                    return item[this.textKey].indexOf(_val) > -1;
+                }); */
+            },
         },
         //是否选中,控制勾选图标
         hasChecked() {
@@ -138,19 +159,16 @@ export default {
                 return this.checkedArray.includes(key);
             };
         },
-        //列表结果数据
-        listRenderData() {
-            if (this.setCheckedTop && this.$attrs.valueTypeObject && this.$attrs.valueTypeObject.length > 0) {
-                let result = this.$attrs.valueTypeObject.slice();
-                this.selectData.forEach((item, index, arr) => {
-                    if (this.checkedArray.includes(item.id)) {
-                        arr.splice(index, 1);
-                    }
-                });
-                result.push(...this.selectData);
-                return result;
+        renderListData() {
+            let list = this.selectData;
+            return list;
+        },
+        //输入框placeholder
+        placeholderText() {
+            if (this.checkedArray.length == 0) {
+                return this.placeholderDefault;
             } else {
-                return this.selectData;
+                return this.placeholderInput;
             }
         },
     },
@@ -159,21 +177,31 @@ export default {
     },
     methods: {
         init() {
-            document.addEventListener('click', this.onBlur, false);
+            document.addEventListener('click', this.onOtherEleSelectBlur, false);
             this.$once('hook:beforeDestory', function () {
-                document.removeEventListener('click', this.onBlur, false);
+                document.removeEventListener('click', this.onOtherEleSelectBlur, false);
             });
         },
         //点击其他元素时，隐藏list
-        onBlur(e) {
+        onOtherEleSelectBlur(e) {
             if (!this.$el.contains(e.target)) {
                 this.isShowList = false;
+                this.selectFocus = false;
             }
+        },
+        //获取焦点
+        onFocus() {
+            console.log('111');
         },
         //单选：切换显示list，多选：显示list
         toggleList(e) {
+            this.selectFocus = true;
             // console.log('e:', e, e.target);
-            this.isShowList = !this.isShowList;
+            if (!this.canSearch) {
+                this.isShowList = !this.isShowList;
+            } else {
+                this.isShowList = true;
+            }
         },
         //选择节点
         onSelect(key) {
@@ -202,7 +230,7 @@ export default {
                 this.multiple ? _checkedArray.push(key) : _checkedArray.splice(_index, 1, key);
             }
 
-            console.log('this.checkedArray:', this.checkedArray);
+            // console.log('this.checkedArray:', this.checkedArray);
             this.returnChange(); //返回结果
         },
         //返回选中的数据
@@ -249,7 +277,6 @@ export default {
         background-color: #fff;
         border: 1px solid #d9d9d9;
         border-radius: 4px;
-        font-size: 0;
         outline: none;
         cursor: pointer;
         &:hover {
@@ -261,11 +288,16 @@ export default {
             outline: 0;
             box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
         }
+        .g-select-focused {
+            opacity: 0.4;
+        }
         .g-select-input {
+            position: absolute;
+            top: -40px;
             box-sizing: border-box;
-            width: 100%;
             height: 100%;
             font-size: 14px;
+            background: #ff000033;
             color: rgba(0, 0, 0, 0.65);
             border: none;
             outline: none;
@@ -278,6 +310,15 @@ export default {
         height: auto;
         min-height: 20px;
         margin-top: 10px;
+        .g-select-search-input {
+            width: 90%;
+            height: 25px;
+            margin: 0 auto;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.65);
+        }
         .g-select-list {
             width: 100%;
             height: auto;
