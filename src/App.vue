@@ -1,19 +1,22 @@
 <template>
     <div id="app11">
         <div id="nav">
-            <div>ids:{{getCheckedIds}}</div>
-            <g-select
-                :onOverLimitMaxPrompt="onOverLimitMaxPrompt"
-                :onOverLimitMinPrompt="onOverLimitMinPrompt"
-                :select-data="selectData"
-                :valueTypeObject="checkedData"
-                canSearch
-                maxCheckedNum="5"
-                minCheckedNum="0"
-                setCheckedTop
-                textKey="label"
-                v-model="getCheckedIds"
-            />
+            <div style="display:flex">
+                <g-select
+                    :onOverLimitMaxPrompt="onOverLimitMaxPrompt"
+                    :onOverLimitMinPrompt="onOverLimitMinPrompt"
+                    :select-data="selectData"
+                    :valueTypeObject="checkedData"
+                    canSearch
+                    maxCheckedNum="5"
+                    minCheckedNum="0"
+                    multiple
+                    setCheckedTop
+                    textKey="label"
+                    v-model="getCheckedIds"
+                />
+                <div>ids:{{getCheckedIds}}</div>
+            </div>
             <about />
 
             <!-- <input
@@ -114,12 +117,17 @@ export default {
     },
     methods: {
         sort() {
-            this.selectData.forEach((item, index, arr) => {
+            let _checkedArray = [];
+            let _selectData = this.selectData;
+            for (let i = 0; i < _selectData.length; i++) {
+                const item = _selectData[i];
                 if (this.getCheckedIds.indexOf(item.id) > -1) {
-                    arr.splice(index, 1);
+                    _selectData.splice(i, 1);
+                    i--;
+                    _checkedArray.push(item);
                 }
-            });
-            this.selectData.unshift(...this.checkedData);
+            }
+            this.selectData.unshift(..._checkedArray);
         },
         onOverLimitMaxPrompt() {
             alert('最多可选择5个');

@@ -1,19 +1,27 @@
 <template>
     <section :class="{'active':isShowList}" class="g-select-wrap">
-        <div @click.stop="toggleList" class="g-select-input-wrap">
-            <div :class="{'g-select-focused':selectFocus}" class="g-select-selection-selected-value">{{checkedText}}111</div>
+        <div class="g-select-input-wrap">
+            <!-- @click.stop="toggleList" -->
+            <div
+                :class="{'g-select-focused':selectFocus}"
+                @click.stop="toggleSelectFocus"
+                class="g-select-selection-selected-value"
+            >{{checkedText}}</div>
             <input
                 :disabled="!canSearch"
                 :placeholder="placeholderText"
+                @focus="onFocus"
                 class="g-select-input g-text-ellipsis"
                 ref="searchInput"
                 type="text"
+                v-model.trim="searchVal"
             />
             <!-- v-model.trim="checkedText" -->
         </div>
         <div class="g-select-list-wrap">
             <ul class="g-select-list">
-                <li :key="index" @click="onSelect(item[originKey])" v-for="(item,index) in renderListData">
+                <li v-if="renderListData.length ==0">No data</li>
+                <li :key="index" @click="onSelect(item[originKey])" v-else v-for="(item,index) in renderListData">
                     <img :src="iconSrc" class="icon-checked" v-show="hasChecked(item[originKey])" />
                     {{item[textKey]}}
                 </li>
@@ -96,7 +104,7 @@ export default {
             isShowList: false, //是否显示list
             placeholderInput: '',
             selectFocus: false, //文字区域是否获取焦点
-            
+            searchVal: null,
         };
     },
     watch: {
@@ -161,7 +169,11 @@ export default {
         },
         renderListData() {
             let list = this.selectData;
-            return list;
+            if (this.canSearch) {
+                return [];
+            } else {
+                return list;
+            }
         },
         //输入框placeholder
         placeholderText() {
@@ -189,19 +201,27 @@ export default {
                 this.selectFocus = false;
             }
         },
-        //获取焦点
+        //输入框获取焦点
         onFocus() {
-            console.log('111');
+            this.selectFocus = true;
+            this.isShowList = true;
         },
+        //输入框失去焦点
+        // onBlur(e) {
+        //     console.log('222');
+        //     this.isShowList = false;
+        //     this.selectFocus = false;
+        // },
         //单选：切换显示list，多选：显示list
         toggleList(e) {
             this.selectFocus = true;
             // console.log('e:', e, e.target);
-            if (!this.canSearch) {
-                this.isShowList = !this.isShowList;
-            } else {
-                this.isShowList = true;
-            }
+            this.isShowList = !this.isShowList;
+        },
+        //点击显示文字区域，切换列表显示和文字颜色
+        toggleSelectFocus() {
+            this.selectFocus = this.selectFocus ? false : !this.selectFocus;
+            this.isShowList = !this.isShowList;
         },
         //选择节点
         onSelect(key) {
@@ -273,7 +293,7 @@ export default {
         height: 32px;
         line-height: 32px;
         padding-left: 15px;
-        padding-right: 30px;
+        padding-right: 10px;
         background-color: #fff;
         border: 1px solid #d9d9d9;
         border-radius: 4px;
@@ -293,7 +313,7 @@ export default {
         }
         .g-select-input {
             position: absolute;
-            top: -40px;
+            right: -200px;
             box-sizing: border-box;
             height: 100%;
             font-size: 14px;
@@ -324,6 +344,7 @@ export default {
             height: auto;
             max-height: 200px;
             overflow-y: auto;
+            border: 1px solid #dddddd;
             & > li {
                 position: relative;
                 box-sizing: border-box;
